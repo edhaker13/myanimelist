@@ -69,10 +69,9 @@ class MyAnimeList(object):
         log.verbose("Retrieving MyAnimeList on %s ."  % url)
         
         try:
-            task.requests.get(url)
+            data = task.requests.get(url).json()
         except RequestException as e:
             raise PluginError('Could not retrieve list from MAL (%s)' % e.message)
-        data = json.dumps(url)
         if not data:
             #check_auth()
             log.warning('No data returned from trakt.')

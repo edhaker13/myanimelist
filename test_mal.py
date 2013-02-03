@@ -12,7 +12,7 @@ class TestMAL(FlexGetBase):
             import_series:
                 from:
                     myanimelist:
-                        username: yourusername   # our plugin
+                        username: edhaker13   # our plugin
     """
     
     def test_feature(self):
