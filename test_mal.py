@@ -16,3 +16,4 @@ class TestMAL(FlexGetBase):
         # run the task
         self.execute_task('test')
         assert False, 'incomplete tests' # causes test to fail and log to be displayed
+        
