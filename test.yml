@@ -3,7 +3,7 @@ preset:
     import_series:
     	from:
       		myanimelist:
-      			username: yourusername
+      			username: edhaker13
 
 tasks:
   test:

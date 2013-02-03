@@ -38,8 +38,7 @@ class MyAnimeList(object):
     Option username are required. Anime list must be public.
     """
     anime_map = {
-        'title': 'title',
-        'watched_status': 'status'
+        'title': 'title'
                  }
 
     def validator(self):
@@ -55,7 +54,7 @@ class MyAnimeList(object):
             raise PluginError('Must define the list username to retrieve from MAL')
     
         username = config['username']
-        map = self.anime_map
+        
         if not 'list' in config:    
             status = 'watching'
         else:
@@ -77,19 +76,19 @@ class MyAnimeList(object):
             log.warning('No data returned from trakt.')
             return
         
-        if not isinstance(data['items'], list):
-            raise PluginError('Faulty items in response: %s' % data['items'])
-        data = data['items']
+        if not isinstance(data['anime'], list):
+            raise PluginError('Faulty items in response: %s' % data['anime'])
+        data = data['anime']
+        i = 000
         for item in data:
             if item['watched_status'] == status:
-                    item = item['anime']
-            entry = Entry()
-            entry.update_using_map(map, item)
-            if entry.isvalid():
-                # Remove non alphanumeric and space characters
-                entry['title'] = re.sub('[^a-zA-Z0-9 ]', '', entry['title'])
-                entries.append(entry)
-
+                title = data[i]['title']
+                entry = Entry(title=title)
+                if entry.isvalid():
+                    # Remove non alphanumeric and space characters
+                    entry['title'] = re.sub('[^a-zA-Z0-9 ]', '', entry['title'])
+                    entries.append(entry)
+            i+=1
         return entries
 
 register_plugin(MyAnimeList, 'myanimelist', api_ver=2)
