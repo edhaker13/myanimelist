@@ -1,0 +1,8 @@
+preset:
+  global:
+    import_series:
+      username: edhaker13
+
+task:
+  Testing:
+  
