@@ -1,8 +1,12 @@
 preset:
   global:
     import_series:
-      username: edhaker13
+    	from:
+      		myanimelist:
+      			username: yourusername
 
-task:
-  Testing:
-  
+tasks:
+  test:
+    mock:
+      - {title: 'Entry title', url: 'http://some.location.com/'}
+    accept_all: yes

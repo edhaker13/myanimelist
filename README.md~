@@ -17,7 +17,6 @@ myanimelist:
     username: username
 ```
 Usage Example
-============
 ``` YAML
 preset:
   global:
@@ -26,7 +25,7 @@ preset:
       		myanimelist:
       			username: edhaker13
 
-tasks:
+feeds:
   test:
     mock:
       - {title: 'Entry title', url: 'http://some.location.com/'}

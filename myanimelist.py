@@ -10,7 +10,6 @@
 # http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
 
 import logging
-from requests import RequestException
 from flexget.utils.soup import get_soup
 from flexget.utils.tools import urlopener
 from flexget.utils.cached_input import cached
@@ -64,13 +63,12 @@ class MyAnimeList(object):
 
         entries = []
         log.verbose("Retrieving MyAnimeList on %s ."  % url)
-
+        
         page = urlopener(url, log)
         soup = get_soup(page)
 
         if soup.div('', "badresult"):
             raise PluginError('Anime list isn\'t public.')
-
         for a in soup.find_all('a', 'animetitle'):
             title = a.span.string.replace('.', '').replace('-', ' ')
             entry= Entry()
