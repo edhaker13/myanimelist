@@ -61,9 +61,9 @@ class MyAnimeList(object):
             status = config['list']
         
         url = 'http://mal-api.com/animelist/%s' % username
-        if 'password' in config:
-            auth = {'username': config['username'],
-                    'password': config['password']}
+        #if 'password' in config:
+        #    auth = {'username': config['username'],
+        #            'password': config['password']}
         entries = []
         log.verbose("Retrieving MyAnimeList on %s ."  % url)
         

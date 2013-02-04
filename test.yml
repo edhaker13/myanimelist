@@ -1,12 +1,6 @@
-preset:
-  global:
-    import_series:
-    	from:
-      		myanimelist:
-      			username: edhaker13
-
 tasks:
   test:
-    mock:
-      - {title: 'Entry title', url: 'http://some.location.com/'}
+    myanimelist:
+      username: edhaker13
+      list: plan to watch
     accept_all: yes
