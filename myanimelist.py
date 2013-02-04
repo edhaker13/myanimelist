@@ -8,7 +8,7 @@
 # http://github.com/Flexget/Flexget/blob/master/flexget/plugins/input/trakt_list.py
 # and the BeatifulSoup Documentation (it's for bs3)
 # http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
-#from __future__ import unicode_literals, division, absolute_import
+from __future__ import unicode_literals, division, absolute_import
 import logging
 import re
 from requests import RequestException
