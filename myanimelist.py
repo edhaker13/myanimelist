@@ -84,9 +84,9 @@ class MyAnimeList(object):
             if item['watched_status'] == status:
                 title = data[i]['title']
                 entry = Entry()
-                entry['title'] = title
                 # Remove non alphanumeric and space characters
-                entry['title'] = re.sub('[^a-zA-Z0-9 ]', '', entry['title'])
+                title = re.sub('[^a-zA-Z0-9 \d\.]', '', title)
+                entry['title'] = title
                 entries.append(entry)
                     
             i+=1
