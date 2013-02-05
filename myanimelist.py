@@ -12,7 +12,7 @@ from __future__ import unicode_literals, division, absolute_import
 import logging
 import re
 from requests import RequestException
-from flexget.utils import json
+#from flexget.utils import json
 from flexget.utils.cached_input import cached
 from flexget.plugin import register_plugin, PluginError
 from flexget.entry import Entry
@@ -79,15 +79,16 @@ class MyAnimeList(object):
         if not isinstance(data['anime'], list):
             raise PluginError('Faulty items in response: %s' % data['anime'])
         data = data['anime']
-        i = 000
+        i = 0
         for item in data:
             if item['watched_status'] == status:
                 title = data[i]['title']
-                entry = Entry(title=title)
-                if entry.isvalid():
-                    # Remove non alphanumeric and space characters
-                    entry['title'] = re.sub('[^a-zA-Z0-9 ]', '', entry['title'])
-                    entries.append(entry)
+                entry = Entry()
+                entry['title'] = title
+                # Remove non alphanumeric and space characters
+                entry['title'] = re.sub('[^a-zA-Z0-9 ]', '', entry['title'])
+                entries.append(entry)
+                    
             i+=1
         return entries
 
