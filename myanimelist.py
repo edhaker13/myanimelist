@@ -26,6 +26,7 @@ class MyAnimeList(object):
 
     myanimelist:
       username: <value>
+      list: <value.
 
     Example:
 
@@ -33,8 +34,9 @@ class MyAnimeList(object):
         from:
           myanimelist:
             username: 'your username'
+            list: plan to watch|watching
 
-    Option username are required. Anime list must be public.
+    Option username is required. Anime list must be public.
     """
 
     def validator(self):
@@ -69,7 +71,7 @@ class MyAnimeList(object):
             raise PluginError('Could not retrieve list from MAL (%s)' % e.message)
         if not data:
             #check_auth()
-            log.warning('No data returned from trakt.')
+            log.warning('No data returned from MAL.')
             return
         
         if not isinstance(data['anime'], list):
