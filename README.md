@@ -25,17 +25,16 @@ Usage Example
 tasks:
   test:
     import_series:
-    	from:
-      		myanimelist:
-      			username: edhaker13
-      			list: plan to watch
-
+      from:
+        myanimelist:
+      	  username: edhaker13
+      	  list: plan to watch
     accept_all: yes
 ```
 Requirements
 =============
-- Python
-- BeautifulSoup 3+
+- Python 2.5+
+- Flexget
 
 Future Features
 ==============
@@ -46,6 +45,6 @@ Options to be researched in the near future
 
 Other Information
 ==============
-I made this in my spare time, feel free to tell me about any issues.
-If anyone has any ideas on what to extend, I'll be happy to give it a try.
-Also I'm not a proper programmer, so Apologies in advance for anything that's horribly wrong.
+I made this in my spare time, but feel free to make an issue if anything breaks.
+If anyone has any ideas on what to add or anything to improve, I'll be happy to give it a try.
+Also I'm not a proper programmer, so apologies in advance for anything that's horribly wrong.
