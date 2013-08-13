@@ -49,4 +49,4 @@ class SearchMAL(object):
                 i+=1
         return entries
 
-register_plugin(SearchMAL, 'myanimelist-search', api_ver=2)
+register_plugin(SearchMAL, 'myanimelist_search', api_ver=2)
