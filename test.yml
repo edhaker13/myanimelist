@@ -1,8 +1,0 @@
-tasks:
-  test:
-  	mock:
-      - {title: 'Entry title', url: 'http://some.location.com/'}
-    accept_all: yes
-    myanimelist:
-      username: edhaker13
-      list: plan to watch
