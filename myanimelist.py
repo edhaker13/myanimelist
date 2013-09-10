@@ -10,82 +10,91 @@
 # http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
 from __future__ import unicode_literals, division, absolute_import
 import logging
-import re
+from urllib import urlencode
 from requests import RequestException
 from flexget.utils.cached_input import cached
-from flexget.plugin import register_plugin, PluginError
+from flexget.plugin import register_plugin, PluginError, internet
 from flexget.entry import Entry
 
 log = logging.getLogger('myanimelist')
+status_list = ['watching', 'plan to watch', 'completed', 'on-hold', 'dropped']
 
 
 class MyAnimeList(object):
     """A simple MyAnimeList.net input plugin for FlexGet.
-       Creates an entry for each item in the current watching anime list.
 
-    Syntax:
+    Creates an entry for each item in the current watching anime list.
 
-    myanimelist:
-      username: <value>
-      list: <value.
+    Simple Syntax::
 
-    Example:
+      myanimelist: <username>
+
+    Advanced Syntax::
+
+      myanimelist:
+        username: <value>
+        list: <value>
+
+    Example::
 
       import_series:
         from:
           myanimelist:
-            username: 'your username'
-            list: plan to watch|watching
+            username: edhaker13
+            list: plan to watch
 
-    Option username is required. Anime list must be public.
+    <username> is required. Anime list must be public.
     """
 
     def validator(self):
         from flexget import validator
 
-        root = validator.factory('dict')
-        root.accept('text', key='username', requried=True)
-        root.accept('choice', key='list').accept_choices(['watching', 'plan to watch'])
+        root = validator.factory()
+        root.accept('text')
+        advanced = root.accept('dict')
+        advanced.accept('text', key='username', requried=True)
+        advanced.accept('choice', key='list', requried=True).accept_choices(status_list)
         return root
 
-    @cached('myanimelist', persist='1 hour')
+    def get_config(self, config):
+        # Turn into a dict with the username
+        if isinstance(config, basestring):
+            config = {'username': config}
+        return config
+
+    @cached('myanimelist')
+    @internet(log)
     def on_task_input(self, task, config):
+        config = self.get_config(config)
         if not 'username' in config:
-            raise PluginError('Must define the list username to retrieve from MAL')
+            raise PluginError('Must define the list\'s username to retrieve.')
 
+        # Retrieve username and urlencode it
         username = config['username']
+        username = urlencode(username, 0)
 
-        if not 'list' in config:
-            status = 'watching'
-        else:
-            status = config['list']
+        status = config.get('list', 'watching')
 
         url = 'http://mal-api.com/animelist/%s' % username
-        #if 'password' in config:
-        #    auth = {'username': config['username'],
-        #            'password': config['password']}
+        log.verbose("Retrieving MyAnimeList on %r ." % url)
         entries = []
-        log.verbose("Retrieving MyAnimeList on %s ." % url)
 
         try:
             data = task.requests.get(url).json()
         except RequestException as e:
-            raise PluginError('Could not retrieve list from MAL (%s)' % e.message)
+            raise PluginError('Could not retrieve list from MyAnimeList (%s).' % e.message)
         if not data:
-            #check_auth()
-            log.warning('No data returned from MAL.')
+            log.warning('No data returned from MyAnimeList.')
             return
 
         if not isinstance(data['anime'], list):
-            raise PluginError('Faulty items in response: %s' % data['anime'])
+            raise PluginError('Incompatible items in response: %r.' % data['anime'])
         data = data['anime']
         i = 0
         for item in data:
             if item['watched_status'] == status:
                 title = data[i]['title']
                 entry = Entry()
-                # Remove non alphanumeric and space characters
-                title = re.sub('[^a-zA-Z0-9 \d\.]', '', title)
                 entry['title'] = title
                 entries.append(entry)
 
