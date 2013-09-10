@@ -18,6 +18,7 @@ from flexget.entry import Entry
 
 log = logging.getLogger('myanimelist')
 
+
 class MyAnimeList(object):
     """A simple MyAnimeList.net input plugin for FlexGet.
        Creates an entry for each item in the current watching anime list.
@@ -41,30 +42,31 @@ class MyAnimeList(object):
 
     def validator(self):
         from flexget import validator
+
         root = validator.factory('dict')
         root.accept('text', key='username', requried=True)
         root.accept('choice', key='list').accept_choices(['watching', 'plan to watch'])
         return root
 
-    @cached('myanimelist', persist='2 hour')
+    @cached('myanimelist', persist='1 hour')
     def on_task_input(self, task, config):
         if not 'username' in config:
             raise PluginError('Must define the list username to retrieve from MAL')
-    
+
         username = config['username']
-        
-        if not 'list' in config:    
+
+        if not 'list' in config:
             status = 'watching'
         else:
             status = config['list']
-        
+
         url = 'http://mal-api.com/animelist/%s' % username
         #if 'password' in config:
         #    auth = {'username': config['username'],
         #            'password': config['password']}
         entries = []
-        log.verbose("Retrieving MyAnimeList on %s ."  % url)
-        
+        log.verbose("Retrieving MyAnimeList on %s ." % url)
+
         try:
             data = task.requests.get(url).json()
         except RequestException as e:
@@ -73,7 +75,7 @@ class MyAnimeList(object):
             #check_auth()
             log.warning('No data returned from MAL.')
             return
-        
+
         if not isinstance(data['anime'], list):
             raise PluginError('Faulty items in response: %s' % data['anime'])
         data = data['anime']
@@ -86,8 +88,9 @@ class MyAnimeList(object):
                 title = re.sub('[^a-zA-Z0-9 \d\.]', '', title)
                 entry['title'] = title
                 entries.append(entry)
-                    
-            i+=1
+
+            i += 1
         return entries
+
 
 register_plugin(MyAnimeList, 'myanimelist', api_ver=2)
