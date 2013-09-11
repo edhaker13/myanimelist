@@ -106,7 +106,9 @@ class MyAnimeList(object):
             if item['watched_status'] == status:
                 entry = Entry()
                 entry.update_using_map(self.anime_map, item, ignore_none=True)
-                entry['url'] = 'http://myanimelist.net/anime/%s' % item['id']
+                mal_url = 'http://myanimelist.net/anime/%s' % item['id']
+                entry['url'] = mal_url
+                entry['mal_url'] = mal_url
                 entries.append(entry)
 
         return entries
