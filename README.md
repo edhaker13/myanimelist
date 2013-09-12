@@ -102,4 +102,4 @@ Options to be improved in the future
 # Other Information #
 I made this in my spare time, but feel free to make an issue if anything breaks.
 If anyone has any ideas on what to add or anything to improve, I'll be happy to give it a try.
-Also I'm an experienced programmer, so apologies in advance for anything that's horribly coded.
+Also I'm an not experienced programmer, so apologies in advance for anything that's horribly coded.
