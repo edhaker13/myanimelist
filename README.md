@@ -49,7 +49,7 @@ New fields available on both `myanimelist` and `search_myanimelist`:
   - `mal_url` the link to the information page on [MyAnimeList.net](http://myanimelist.net)
 
 Exclusive to `myanimelist`:
-  - `mal_status` the show's airing status like `Finished Airing`, `Currently Airing` or `Not yet aired`
+  - `mal_status` the show's airing status like `finished airing`, `currently airing` or `not yet aired`
   - `mal_user_score` the user's score on the list
   - `mal_watched_status` the show's status on the list
 
