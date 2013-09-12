@@ -13,6 +13,9 @@ class TestMyAnimeList(FlexGetBase):
         tasks:
           test_default:
             myanimelist: flexget
+          test_partial:
+            myanimelist:
+              username: flexget
           test_watching:
             myanimelist:
               username: flexget
@@ -49,6 +52,41 @@ class TestMyAnimeList(FlexGetBase):
     @attr(online=True)
     def test_default(self):
         self.execute_task('test_default')
+        log.debug('List of entries: %s' % [e['title'] for e in self.task.entries])
+        entry0 = self.task.entries[0]
+        values0 = {
+            'mal_id': 9253,
+            'title': 'Steins;Gate',
+            'mal_type': 'TV',
+            'mal_image_url': 'http://cdn.myanimelist.net/images/anime/11/41011.jpg',
+            'mal_episodes': 24,
+            'mal_status': 'finished airing',
+            'mal_user_score': 0,
+            'mal_watched_status': 'watching',
+            'url': 'http://myanimelist.net/anime/9253',
+            'mal_url': 'http://myanimelist.net/anime/9253'
+        }
+        self._assert_entry(entry0, values0)
+
+        entry1 = self.task.entries[1]
+        values1 = {
+            'mal_id': 18507,
+            'title': 'Free!',
+            'mal_type': 'TV',
+            'mal_image_url': 'http://cdn.myanimelist.net/images/anime/6/51107.jpg',
+            'mal_episodes': 12,
+            'mal_status': 'currently airing',
+            'mal_user_score': 7,
+            'mal_watched_status': 'watching',
+            'url': 'http://myanimelist.net/anime/18507',
+            'mal_url': 'http://myanimelist.net/anime/18507',
+        }
+        self._assert_entry(entry1, values1)
+        log.debug('Default test completed succesfully')
+
+    @attr(online=True)
+    def test_partial(self):
+        self.execute_task('test_partial')
         log.debug('List of entries: %s' % [e['title'] for e in self.task.entries])
         entry0 = self.task.entries[0]
         values0 = {
