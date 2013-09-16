@@ -10,10 +10,8 @@
 # http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
 from __future__ import unicode_literals, division, absolute_import
 import logging
-import re
-from requests import RequestException
 from flexget.utils.cached_input import cached
-from flexget.plugin import register_plugin, PluginError
+from flexget.plugin import register_plugin, PluginError, internet
 from flexget.entry import Entry
 
 log = logging.getLogger('myanimelist')
@@ -21,75 +19,98 @@ log = logging.getLogger('myanimelist')
 
 class MyAnimeList(object):
     """A simple MyAnimeList.net input plugin for FlexGet.
-       Creates an entry for each item in the current watching anime list.
 
-    Syntax:
+    Creates an entry for each item in the current watching anime list.
 
-    myanimelist:
-      username: <value>
-      list: <value.
+    Simple Syntax::
 
-    Example:
+      myanimelist: <username>
+
+    Advanced Syntax::
+
+      myanimelist:
+        username: <value>
+        list: <watching|plan to watch|completed|on-hold|dropped>
+
+    Example::
 
       import_series:
         from:
           myanimelist:
-            username: 'your username'
-            list: plan to watch|watching
+            username: flexget
+            list: plan to watch
 
-    Option username is required. Anime list must be public.
+    <username> is required. Anime list must be public.
     """
+    schema = {
+        'type': ['string', 'object'],
+        'properties': {
+            'username': {'type': 'string'},
+            'list': {'enum': ['watching', 'plan to watch', 'completed', 'on-hold', 'dropped'], 'default': 'watching'}
+        },
+        'required': ['username'],
+        'additionalProperties': False
+    }
 
-    def validator(self):
-        from flexget import validator
+    anime_map = {
+        'mal_id': 'id',
+        'title': 'title',
+        'mal_type': 'type',
+        'mal_image_url': 'image_url',
+        'mal_episodes': 'episodes',
+        'mal_status': 'status',
+        'mal_user_score': 'score',
+        'mal_watched_status': 'watched_status'
+    }
 
-        root = validator.factory('dict')
-        root.accept('text', key='username', requried=True)
-        root.accept('choice', key='list').accept_choices(['watching', 'plan to watch'])
-        return root
+    def safe_username(self, username):
+        from urllib import always_safe
 
-    @cached('myanimelist', persist='1 hour')
+        safe_string = always_safe.replace('.', '')
+        safe_username = ''.join([s for s in username if s in safe_string])
+        if username != safe_username:
+            log.warning('username can only be made of letters, numbers and _-')
+        return safe_username
+
+    def get_config(self, config):
+        # Turn into a dict with the username
+        if isinstance(config, basestring):
+            config = {'username': config}
+        return config
+
+    @cached('myanimelist')
+    @internet(log)
     def on_task_input(self, task, config):
-        if not 'username' in config:
-            raise PluginError('Must define the list username to retrieve from MAL')
+        config = self.get_config(config)
 
+        log.debug('Starting MyAnimeList plugin')
+        # Retrieve username and remove invalid characters
         username = config['username']
+        username = self.safe_username(username)
 
-        if not 'list' in config:
-            status = 'watching'
-        else:
-            status = config['list']
+        status = config.get('list', 'watching')
 
         url = 'http://mal-api.com/animelist/%s' % username
-        #if 'password' in config:
-        #    auth = {'username': config['username'],
-        #            'password': config['password']}
+        log.verbose("Retrieving MyAnimeList on %r ." % url)
         entries = []
-        log.verbose("Retrieving MyAnimeList on %s ." % url)
 
-        try:
-            data = task.requests.get(url).json()
-        except RequestException as e:
-            raise PluginError('Could not retrieve list from MAL (%s)' % e.message)
+        data = task.requests.get(url).json()
         if not data:
-            #check_auth()
-            log.warning('No data returned from MAL.')
+            log.warning('No data returned from MyAnimeList.')
             return
 
         if not isinstance(data['anime'], list):
-            raise PluginError('Faulty items in response: %s' % data['anime'])
+            raise PluginError('Incompatible items in response: %r.' % data['anime'])
         data = data['anime']
-        i = 0
         for item in data:
             if item['watched_status'] == status:
-                title = data[i]['title']
                 entry = Entry()
-                # Remove non alphanumeric and space characters
-                title = re.sub('[^a-zA-Z0-9 \d\.]', '', title)
-                entry['title'] = title
+                entry.update_using_map(self.anime_map, item, ignore_none=True)
+                mal_url = 'http://myanimelist.net/anime/%s' % item['id']
+                entry['url'] = mal_url
+                entry['mal_url'] = mal_url
                 entries.append(entry)
 
-            i += 1
         return entries
 
 
