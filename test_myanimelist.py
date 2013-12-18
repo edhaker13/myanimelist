@@ -39,8 +39,8 @@ class TestMyAnimeList(FlexGetBase):
     """
 
     def _assert_entry(self, entry, values):
-        keys = {'mal_id', 'title', 'mal_type', 'mal_image_url', 'mal_episodes', 'mal_status', 'mal_user_score',
-                'mal_watched_status', 'url', 'mal_url'}
+        keys = {'mal_id', 'title', 'mal_type', 'mal_image_url', 'mal_episodes', 'mal_status', 'mal_my_score',
+                'mal_my_status', 'url', 'mal_url'}
         for key in keys:
             entry_value = entry.get(key)
             input_value = values.get(key)
@@ -55,14 +55,14 @@ class TestMyAnimeList(FlexGetBase):
         log.debug('List of entries: %s' % [e['title'] for e in self.task.entries])
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 9253,
+            'mal_id': '9253',
             'title': 'Steins;Gate',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/11/41011.jpg',
-            'mal_episodes': 24,
+            'mal_episodes': '24',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'watching',
+            'mal_my_score': '0',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/9253',
             'mal_url': 'http://myanimelist.net/anime/9253'
         }
@@ -70,14 +70,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 18507,
+            'mal_id': '18507',
             'title': 'Free!',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/6/51107.jpg',
-            'mal_episodes': 12,
-            'mal_status': 'currently airing',
-            'mal_user_score': 7,
-            'mal_watched_status': 'watching',
+            'mal_episodes': '12',
+            'mal_status': 'finished airing',
+            'mal_my_score': '7',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/18507',
             'mal_url': 'http://myanimelist.net/anime/18507',
         }
@@ -90,14 +90,14 @@ class TestMyAnimeList(FlexGetBase):
         log.debug('List of entries: %s' % [e['title'] for e in self.task.entries])
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 9253,
+            'mal_id': '9253',
             'title': 'Steins;Gate',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/11/41011.jpg',
-            'mal_episodes': 24,
+            'mal_episodes': '24',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'watching',
+            'mal_my_score': '0',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/9253',
             'mal_url': 'http://myanimelist.net/anime/9253'
         }
@@ -105,14 +105,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 18507,
+            'mal_id': '18507',
             'title': 'Free!',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/6/51107.jpg',
-            'mal_episodes': 12,
-            'mal_status': 'currently airing',
-            'mal_user_score': 7,
-            'mal_watched_status': 'watching',
+            'mal_episodes': '12',
+            'mal_status': 'finished airing',
+            'mal_my_score': '7',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/18507',
             'mal_url': 'http://myanimelist.net/anime/18507',
         }
@@ -124,14 +124,14 @@ class TestMyAnimeList(FlexGetBase):
         self.execute_task('test_watching')
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 9253,
+            'mal_id': '9253',
             'title': 'Steins;Gate',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/11/41011.jpg',
-            'mal_episodes': 24,
+            'mal_episodes': '24',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'watching',
+            'mal_my_score': '0',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/9253',
             'mal_url': 'http://myanimelist.net/anime/9253'
         }
@@ -139,14 +139,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 18507,
+            'mal_id': '18507',
             'title': 'Free!',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/6/51107.jpg',
-            'mal_episodes': 12,
-            'mal_status': 'currently airing',
-            'mal_user_score': 7,
-            'mal_watched_status': 'watching',
+            'mal_episodes': '12',
+            'mal_status': 'finished airing',
+            'mal_my_score': '7',
+            'mal_my_status': 'watching',
             'url': 'http://myanimelist.net/anime/18507',
             'mal_url': 'http://myanimelist.net/anime/18507'
         }
@@ -158,14 +158,14 @@ class TestMyAnimeList(FlexGetBase):
         self.execute_task('test_plantowatch')
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 2167,
+            'mal_id': '2167',
             'title': 'Clannad',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/13/8498.jpg',
-            'mal_episodes': 23,
+            'mal_episodes': '23',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'plan to watch',
+            'mal_my_score': '0',
+            'mal_my_status': 'plan to watch',
             'url': 'http://myanimelist.net/anime/2167',
             'mal_url': 'http://myanimelist.net/anime/2167'
         }
@@ -173,14 +173,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 4224,
+            'mal_id': '4224',
             'title': 'Toradora!',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/5/22125.jpg',
-            'mal_episodes': 25,
+            'mal_episodes': '25',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'plan to watch',
+            'mal_my_score': '0',
+            'mal_my_status': 'plan to watch',
             'url': 'http://myanimelist.net/anime/4224',
             'mal_url': 'http://myanimelist.net/anime/4224'
         }
@@ -192,14 +192,14 @@ class TestMyAnimeList(FlexGetBase):
         self.execute_task('test_completed')
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 2993,
+            'mal_id': '2993',
             'title': 'Rosario to Vampire',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/3/25062.jpg',
-            'mal_episodes': 13,
+            'mal_episodes': '13',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'completed',
+            'mal_my_score': '0',
+            'mal_my_status': 'completed',
             'url': 'http://myanimelist.net/anime/2993',
             'mal_url': 'http://myanimelist.net/anime/2993'
         }
@@ -207,14 +207,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 11933,
+            'mal_id': '11933',
             'title': 'Oda Nobuna no Yabou',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/11/39249.jpg',
-            'mal_episodes': 12,
+            'mal_episodes': '12',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'completed',
+            'mal_my_score': '0',
+            'mal_my_status': 'completed',
             'url': 'http://myanimelist.net/anime/11933',
             'mal_url': 'http://myanimelist.net/anime/11933'
         }
@@ -226,14 +226,14 @@ class TestMyAnimeList(FlexGetBase):
         self.execute_task('test_onhold')
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 1579,
+            'mal_id': '1579',
             'title': 'Kiniro no Corda: Primo Passo',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/9/7228.jpg',
-            'mal_episodes': 25,
+            'mal_episodes': '25',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'on-hold',
+            'mal_my_score': '0',
+            'mal_my_status': 'on-hold',
             'url': 'http://myanimelist.net/anime/1579',
             'mal_url': 'http://myanimelist.net/anime/1579'
         }
@@ -241,14 +241,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 5114,
+            'mal_id': '5114',
             'title': 'Fullmetal Alchemist: Brotherhood',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/5/47421.jpg',
-            'mal_episodes': 64,
+            'mal_episodes': '64',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'on-hold',
+            'mal_my_score': '0',
+            'mal_my_status': 'on-hold',
             'url': 'http://myanimelist.net/anime/5114',
             'mal_url': 'http://myanimelist.net/anime/5114'
         }
@@ -260,14 +260,14 @@ class TestMyAnimeList(FlexGetBase):
         self.execute_task('test_dropped')
         entry0 = self.task.entries[0]
         values0 = {
-            'mal_id': 4181,
+            'mal_id': '4181',
             'title': 'Clannad: After Story',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/13/24647.jpg',
-            'mal_episodes': 24,
+            'mal_episodes': '24',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'dropped',
+            'mal_my_score': '0',
+            'mal_my_status': 'dropped',
             'url': 'http://myanimelist.net/anime/4181',
             'mal_url': 'http://myanimelist.net/anime/4181'
         }
@@ -275,14 +275,14 @@ class TestMyAnimeList(FlexGetBase):
 
         entry1 = self.task.entries[1]
         values1 = {
-            'mal_id': 5682,
+            'mal_id': '5682',
             'title': 'Phantom: Requiem for the Phantom',
             'mal_type': 'TV',
             'mal_image_url': 'http://cdn.myanimelist.net/images/anime/8/22470.jpg',
-            'mal_episodes': 26,
+            'mal_episodes': '26',
             'mal_status': 'finished airing',
-            'mal_user_score': 0,
-            'mal_watched_status': 'dropped',
+            'mal_my_score': '0',
+            'mal_my_status': 'dropped',
             'url': 'http://myanimelist.net/anime/5682',
             'mal_url': 'http://myanimelist.net/anime/5682'
         }

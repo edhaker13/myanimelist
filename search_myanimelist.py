@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, division, absolute_import
 import logging
-from urllib import urlencode
 from flexget.utils.cached_input import cached
 from flexget.plugin import register_plugin, PluginError, internet
 from flexget.entry import Entry
@@ -29,12 +28,18 @@ class SearchMyAnimeList(object):
         from:
           search_myanimelist: Free!
     """
+
+    API_URL = 'http://myanimelist.net/api/anime/search.xml'
+    user_agent = 'api-team-692e8861471e4de2fd84f6d91d1175c0'
+
     anime_map = {
         'mal_id': 'id',
         'title': 'title',
         'description': 'synopsis',
         'mal_type': 'type',
-        'mal_episodes': 'episodes'
+        'mal_episodes': 'episodes',
+        'mal_status': 'status',
+        'mal_image_url': 'image'
     }
 
     def validator(self):
@@ -46,6 +51,13 @@ class SearchMyAnimeList(object):
         bundle.accept('text')
         return root
 
+
+    def parse_xml(self, xml):
+        import xml.etree.ElementTree as et
+
+        tree = et.fromstring(xml)
+        return [{item.tag: item.text for item in elem} for elem in tree.findall('entry')]
+
     def get_config(self, config):
         # if it's just one string turn into single list
         if isinstance(config, basestring):
@@ -56,24 +68,38 @@ class SearchMyAnimeList(object):
     @internet(log)
     def on_task_input(self, task, config):
         queries = self.get_config(config)
+        session = task.requests
+        session.auth = ('flexget', 'flexget')
+        session.headers.update({'User-Agent': self.user_agent})
         entries = []
         for query in queries:
-            query = urlencode({'q': query, '': ''})
-            url = 'http://mal-api.com/anime/search?%s' % query
-            log.verbose("Searching MyAnimeList for %s ." % query)
-            data = task.requests.get(url).json()
-            if not data:
-                log.warning('No data returned from MyAnimeList.')
-                return None
-            if not isinstance(data, list):
-                raise PluginError('Faulty items in response: %s' % data)
+            params = {'q': query}
+            url = self.API_URL
+
+            resp = session.get(url, params=params)
+            log.verbose("Searching MyAnimeList on %s" % resp.url)
+            if not resp or resp.status_code != 200:
+                log.warning('No data returned from MyAnimeList')
+                return
+
+            content_type = resp.headers['content-type']
+            if content_type == 'text/html; charset=UTF-8':
+                data = self.parse_xml(resp.text)
+            else:
+                log.warning('Content type not recognized: %s' % content_type)
+                data = ''
+
+            if not isinstance(data, list) or not data:
+                raise PluginError('Faulty items in response: %r' % data)
+
             for item in data:
                 entry = Entry()
                 entry.update_using_map(self.anime_map, item)
-                entry['mal_image_url'] = item['image_url'].replace('t.jpg', '.jpg')
+                entry['mal_image_url'] = entry['mal_image_url'].replace('t.jpg', '.jpg')
                 mal_url = 'http://myanimelist.net/anime/%s' % item['id']
                 entry['url'] = mal_url
                 entry['mal_url'] = mal_url
+                entry['mal_status'] = entry['mal_status'].lower()
                 entries.append(entry)
         return entries
 

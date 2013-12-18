@@ -1,13 +1,7 @@
-# Flexget MyAnimeList Plugin
-# http://www.flexget.com
+# Flexget MyAnimeList Plugin http://www.flexget.com
 # http://myanimelist.net
 # Created by: Luis Checa <edhaker13@gmail.com>
-# Inspired by the plugin from fuzzylights' repo
-# https://bitbucket.org/fuzzylights/plugins-for-flexget/wiki/Home
-# the trakt import series plugin for syntax and features
-# http://github.com/Flexget/Flexget/blob/master/flexget/plugins/input/trakt_list.py
-# and the BeatifulSoup Documentation (it's for bs3)
-# http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html
+
 from __future__ import unicode_literals, division, absolute_import
 import logging
 from flexget.utils.cached_input import cached
@@ -31,6 +25,7 @@ class MyAnimeList(object):
       myanimelist:
         username: <value>
         list: <watching|plan to watch|completed|on-hold|dropped>
+        user-agent: <whitelisted agent>
 
     Example::
 
@@ -42,10 +37,15 @@ class MyAnimeList(object):
 
     <username> is required. Anime list must be public.
     """
+
+    API_URL = 'http://myanimelist.net/malappinfo.php?u=%s&status=all&type=anime'
+    user_agent = 'api-team-692e8861471e4de2fd84f6d91d1175c0'
+
     schema = {
         'type': ['string', 'object'],
         'properties': {
             'username': {'type': 'string'},
+            'user-agent': {'type': 'string', 'default': user_agent},
             'list': {'enum': ['watching', 'plan to watch', 'completed', 'on-hold', 'dropped'], 'default': 'watching'}
         },
         'required': ['username'],
@@ -53,15 +53,49 @@ class MyAnimeList(object):
     }
 
     anime_map = {
-        'mal_id': 'id',
-        'title': 'title',
-        'mal_type': 'type',
-        'mal_image_url': 'image_url',
-        'mal_episodes': 'episodes',
-        'mal_status': 'status',
-        'mal_user_score': 'score',
-        'mal_watched_status': 'watched_status'
+        'mal_id': 'series_animedb_id',
+        'title': 'series_title',
+        'mal_type': 'series_type',
+        'mal_image_url': 'series_image',
+        'mal_episodes': 'series_episodes',
+        'mal_status': 'series_status',
+        'mal_my_score': 'my_score',
+        'mal_my_status': 'my_status'
     }
+
+    watched_map = {
+        'watching': '1',
+        'completed': '2',
+        'on-hold': '3',
+        'dropped': '4',
+        'plan to watch': '6'
+    }
+
+    inv_watched_map = {v: k for k, v in watched_map.items()}
+
+    type_map = {
+        '1': 'TV',
+        '2': 'OVA',
+        '3': 'Movie',
+        '4': 'Special',
+        '5': 'ONA',
+        '6': 'Music'
+    }
+
+    status_map = {
+        '1': 'currently airing',
+        '2': 'finished airing',
+        '3': 'not yet aired'
+    }
+
+    def parse_xml(self, xml):
+        import xml.etree.ElementTree as et
+
+        try:
+            tree = et.fromstring(xml)
+        except xml.etree.ElementTree.ParseError:
+            return
+        return [{item.tag: item.text for item in elem} for elem in tree.findall('anime')]
 
     def safe_username(self, username):
         from urllib import always_safe
@@ -85,30 +119,40 @@ class MyAnimeList(object):
 
         log.debug('Starting MyAnimeList plugin')
         # Retrieve username and remove invalid characters
-        username = config['username']
-        username = self.safe_username(username)
+        username = self.safe_username(config['username'])
 
         status = config.get('list', 'watching')
 
-        url = 'http://mal-api.com/animelist/%s' % username
-        log.verbose("Retrieving MyAnimeList on %r ." % url)
-        entries = []
+        url = self.API_URL % username
+        log.verbose("Retrieving MyAnimeList on %s." % url)
 
-        data = task.requests.get(url).json()
-        if not data:
+        headers = {'User-Agent': config.get('user-agent', self.user_agent)}
+        resp = task.requests.get(url, headers=headers)
+        if not resp or resp.status_code != 200:
             log.warning('No data returned from MyAnimeList.')
             return
 
-        if not isinstance(data['anime'], list):
-            raise PluginError('Incompatible items in response: %r.' % data['anime'])
-        data = data['anime']
+        content_type = resp.headers['content-type']
+        if content_type == 'application/xml; charset=UTF-8':
+            data = self.parse_xml(resp.text)
+        else:
+            log.warning('Content type not xml: %s' % content_type)
+            data = ''
+
+        if not isinstance(data, list):
+            raise PluginError('Incompatible items in response: %r.' % data)
+
+        entries = []
         for item in data:
-            if item['watched_status'] == status:
+            if item['my_status'] == self.watched_map.get(status):
                 entry = Entry()
                 entry.update_using_map(self.anime_map, item, ignore_none=True)
-                mal_url = 'http://myanimelist.net/anime/%s' % item['id']
+                mal_url = 'http://myanimelist.net/anime/%s' % entry['mal_id']
                 entry['url'] = mal_url
                 entry['mal_url'] = mal_url
+                entry['mal_type'] = self.type_map.get(entry['mal_type'])
+                entry['mal_my_status'] = self.inv_watched_map.get(entry['mal_my_status'])
+                entry['mal_status'] = self.status_map.get(entry['mal_status'])
                 entries.append(entry)
 
         return entries
