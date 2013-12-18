@@ -13,8 +13,7 @@ E.g. `Magi` is `Magi: The Labyrinth of Magic`
 
 At the moment only animelist is supported, I might think about mangalist if anyone shows interest.
 
-*NOTE*
-This flexget myanimelist plugin is whitelisted by MAL’s security systems.
+*NOTE*: This flexget myanimelist plugin is whitelisted by MAL’s security systems.
 If you’re planning to use this plugin to work with more than a couple of dozen MAL users' accounts at once,
 you should register your application at https://atomiconline.wufoo.com/forms/mal-api-usage-notification/
 to ensure that MAL’s security systems don’t automatically block you and all other flexget-myanimelist users.
@@ -117,6 +116,6 @@ Options to be improved in the future
   - By `mal_type` this is the only term that I can think of.
 
 # Other Information #
-I made this in my spare time, but feel free to make an issue if anything breaks. __I'm a student, I forget things, give me a nudge if I don't answer._
+I made this in my spare time, but feel free to make an issue if anything breaks. *I'm a student, I forget things, give me a nudge if I don't answer.*
 If anyone has any ideas to add or anything to improve; Create an issue, I'll be happy to give it a go.
 I should say I'm an not a very experienced programmer, so apologies in advance for anything that's horribly implemented.
