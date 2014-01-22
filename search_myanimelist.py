@@ -7,8 +7,36 @@ from flexget.entry import Entry
 log = logging.getLogger('search_myanimelist')
 
 
+def parse_xml(xml):
+    from xml.etree.ElementTree import fromstring
+    from xml.etree.ElementTree import ParseError
+
+    try:
+        tree = fromstring(xml)
+    except ParseError:
+        return
+    return [{item.tag: item.text for item in elem} for elem in tree.findall('entry')]
+
+
+def safe_username(username):
+    from urllib import always_safe
+
+    safe_string = always_safe.replace('.', '')
+    safe_name = ''.join([s for s in username if s in safe_string])
+    if username != safe_name:
+        log.warning('username can only be made of letters, numbers and _-')
+    return safe_name
+
+
+def get_config(config):
+    """ if config is a single string turn into a list """
+    if isinstance(config, basestring):
+        config = [config]
+    return config
+
+
 class SearchMyAnimeList(object):
-    """A simple search MyAnimeList.net input plugin for FlexGet.
+    """ A simple search MyAnimeList.net input plugin for FlexGet.
 
     Creates an entry for each item found by the queries.
 
@@ -51,23 +79,10 @@ class SearchMyAnimeList(object):
         bundle.accept('text')
         return root
 
-
-    def parse_xml(self, xml):
-        import xml.etree.ElementTree as et
-
-        tree = et.fromstring(xml)
-        return [{item.tag: item.text for item in elem} for elem in tree.findall('entry')]
-
-    def get_config(self, config):
-        # if it's just one string turn into single list
-        if isinstance(config, basestring):
-            config = [config]
-        return config
-
     @cached('search_myanimelist')
     @internet(log)
     def on_task_input(self, task, config):
-        queries = self.get_config(config)
+        queries = get_config(config)
         session = task.requests
         session.auth = ('flexget', 'flexget')
         session.headers.update({'User-Agent': self.user_agent})
@@ -84,7 +99,7 @@ class SearchMyAnimeList(object):
 
             content_type = resp.headers['content-type']
             if content_type == 'text/html; charset=UTF-8':
-                data = self.parse_xml(resp.text)
+                data = parse_xml(resp.text)
             else:
                 log.warning('Content type not recognized: %s' % content_type)
                 data = ''

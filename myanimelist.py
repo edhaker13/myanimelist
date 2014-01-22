@@ -11,23 +11,51 @@ from flexget.entry import Entry
 log = logging.getLogger('myanimelist')
 
 
+def parse_xml(xml):
+    from xml.etree.ElementTree import fromstring
+    from xml.etree.ElementTree import ParseError
+
+    try:
+        tree = fromstring(xml)
+    except ParseError:
+        return
+    return [{item.tag: item.text for item in elem} for elem in tree.findall('anime')]
+
+
+def safe_username(username):
+    from urllib import always_safe
+
+    safe_string = always_safe.replace('.', '')
+    safe_name = ''.join([s for s in username if s in safe_string])
+    if username != safe_name:
+        log.warning('username can only be made of letters, numbers and _-')
+    return safe_name
+
+
+def get_config(config):
+    """ if config is only a username, turn into a dict """
+    if isinstance(config, basestring):
+        config = {'username': config}
+    return config
+
+
 class MyAnimeList(object):
     """A simple MyAnimeList.net input plugin for FlexGet.
 
     Creates an entry for each item in the current watching anime list.
 
-    Simple Syntax::
+    Simple Syntax:
 
       myanimelist: <username>
 
-    Advanced Syntax::
+    Advanced Syntax:
 
       myanimelist:
         username: <value>
         list: <watching|plan to watch|completed|on-hold|dropped>
         user-agent: <whitelisted agent>
 
-    Example::
+    Example:
 
       import_series:
         from:
@@ -88,38 +116,14 @@ class MyAnimeList(object):
         '3': 'not yet aired'
     }
 
-    def parse_xml(self, xml):
-        import xml.etree.ElementTree as et
-
-        try:
-            tree = et.fromstring(xml)
-        except xml.etree.ElementTree.ParseError:
-            return
-        return [{item.tag: item.text for item in elem} for elem in tree.findall('anime')]
-
-    def safe_username(self, username):
-        from urllib import always_safe
-
-        safe_string = always_safe.replace('.', '')
-        safe_username = ''.join([s for s in username if s in safe_string])
-        if username != safe_username:
-            log.warning('username can only be made of letters, numbers and _-')
-        return safe_username
-
-    def get_config(self, config):
-        # Turn into a dict with the username
-        if isinstance(config, basestring):
-            config = {'username': config}
-        return config
-
     @cached('myanimelist')
     @internet(log)
     def on_task_input(self, task, config):
-        config = self.get_config(config)
+        config = get_config(config)
 
         log.debug('Starting MyAnimeList plugin')
         # Retrieve username and remove invalid characters
-        username = self.safe_username(config['username'])
+        username = safe_username(config['username'])
 
         status = config.get('list', 'watching')
 
@@ -134,7 +138,7 @@ class MyAnimeList(object):
 
         content_type = resp.headers['content-type']
         if content_type == 'application/xml; charset=UTF-8':
-            data = self.parse_xml(resp.text)
+            data = parse_xml(resp.text)
         else:
             log.warning('Content type not xml: %s' % content_type)
             data = ''
