@@ -14,6 +14,10 @@ def parse_xml(xml):
     try:
         tree = fromstring(xml)
     except ParseError:
+        log.error('No valid xml found: %s', xml if not xml.splitlines() else xml.splitlines()[0])
+        return
+    except UnicodeEncodeError as exc:
+        log.error('Unhandled value while parsing xml.\n%s', exc)
         return
     return [{item.tag: item.text for item in elem} for elem in tree.findall('entry')]
 
@@ -99,7 +103,7 @@ class SearchMyAnimeList(object):
 
             content_type = resp.headers['content-type']
             if content_type == 'text/html; charset=UTF-8':
-                data = parse_xml(resp.text)
+                data = parse_xml(resp.text.encode('utf-8'))
             else:
                 log.warning('Content type not recognized: %s' % content_type)
                 data = ''
