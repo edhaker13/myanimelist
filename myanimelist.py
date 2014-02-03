@@ -18,6 +18,10 @@ def parse_xml(xml):
     try:
         tree = fromstring(xml)
     except ParseError:
+        log.error('No valid xml found: %s', xml if not xml.splitlines() else xml.splitlines()[0])
+        return
+    except UnicodeEncodeError as exc:
+        log.error('Unhandled value while parsing xml.\n%s', exc)
         return
     return [{item.tag: item.text for item in elem} for elem in tree.findall('anime')]
 
@@ -128,17 +132,20 @@ class MyAnimeList(object):
         status = config.get('list', 'watching')
 
         url = self.API_URL % username
-        log.verbose("Retrieving MyAnimeList on %s." % url)
+        log.verbose('Retrieving MyAnimeList on %s.', url)
 
         headers = {'User-Agent': config.get('user-agent', self.user_agent)}
+        log.debug('Using %s', headers)
+
         resp = task.requests.get(url, headers=headers)
         if not resp or resp.status_code != 200:
             log.warning('No data returned from MyAnimeList.')
             return
 
-        content_type = resp.headers['content-type']
+        content_type = resp.headers.get('content-type')
         if content_type == 'application/xml; charset=UTF-8':
-            data = parse_xml(resp.text)
+            data = parse_xml(resp.text.encode('utf-8'))
+            log.debug('Parsed xml to list of dicts')
         else:
             log.warning('Content type not xml: %s' % content_type)
             data = ''
@@ -158,7 +165,9 @@ class MyAnimeList(object):
                 entry['mal_my_status'] = self.inv_watched_map.get(entry['mal_my_status'])
                 entry['mal_status'] = self.status_map.get(entry['mal_status'])
                 entries.append(entry)
+                log.debug('Appended entry: %s', entry.get('title'))
 
+        log.debug('Returning %s entries', len(entries))
         return entries
 
 
