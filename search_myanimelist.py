@@ -1,8 +1,9 @@
 from __future__ import unicode_literals, division, absolute_import
 import logging
+from flexget import plugin
 from flexget.utils.cached_input import cached
-from flexget.plugin import register_plugin, PluginError, internet
 from flexget.entry import Entry
+from flexget.event import event
 
 log = logging.getLogger('search_myanimelist')
 
@@ -56,7 +57,7 @@ class SearchMyAnimeList(object):
 
     Example::
 
-      import_series:
+      configure_series:
         from:
           search_myanimelist: Free!
     """
@@ -84,7 +85,7 @@ class SearchMyAnimeList(object):
         return root
 
     @cached('search_myanimelist')
-    @internet(log)
+    @plugin.internet(log)
     def on_task_input(self, task, config):
         queries = get_config(config)
         session = task.requests
@@ -109,7 +110,7 @@ class SearchMyAnimeList(object):
                 data = ''
 
             if not isinstance(data, list) or not data:
-                raise PluginError('Faulty items in response: %r' % data)
+                raise plugin.PluginError('Faulty items in response: %r' % data)
 
             for item in data:
                 entry = Entry()
@@ -123,4 +124,6 @@ class SearchMyAnimeList(object):
         return entries
 
 
-register_plugin(SearchMyAnimeList, 'search_myanimelist', api_ver=2)
+@event('plugin.register')
+def register_plugin():
+    plugin.register(SearchMyAnimeList, 'search_myanimelist', groups=['search'], api_ver=2)
