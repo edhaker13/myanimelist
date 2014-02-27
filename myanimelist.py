@@ -4,9 +4,10 @@
 
 from __future__ import unicode_literals, division, absolute_import
 import logging
+from flexget import plugin
 from flexget.utils.cached_input import cached
-from flexget.plugin import register_plugin, PluginError, internet
 from flexget.entry import Entry
+from flexget.event import event
 
 log = logging.getLogger('myanimelist')
 
@@ -61,7 +62,7 @@ class MyAnimeList(object):
 
     Example:
 
-      import_series:
+      configure_series:
         from:
           myanimelist:
             username: flexget
@@ -121,7 +122,7 @@ class MyAnimeList(object):
     }
 
     @cached('myanimelist')
-    @internet(log)
+    @plugin.internet(log)
     def on_task_input(self, task, config):
         config = get_config(config)
 
@@ -151,7 +152,7 @@ class MyAnimeList(object):
             data = ''
 
         if not isinstance(data, list):
-            raise PluginError('Incompatible items in response: %r.' % data)
+            raise plugin.PluginError('Incompatible items in response: %r.' % data)
 
         entries = []
         for item in data:
@@ -171,4 +172,6 @@ class MyAnimeList(object):
         return entries
 
 
-register_plugin(MyAnimeList, 'myanimelist', api_ver=2)
+@event('plugin.register')
+def register_plugin():
+    plugin.register(MyAnimeList, 'myanimelist', api_ver=2)

@@ -42,7 +42,7 @@ myanimelist:
 ```YAML
 tasks:
   test:
-    import_series:
+    configure_series:
       from:
         myanimelist:
       	  username: edhaker13
@@ -96,12 +96,12 @@ search_myanimelist:
 ## Usage Example ##
 ```YAML
 # using a single query term
-import_series:
+configure_series:
   from:
     search_myanimelist: Free!
 
 # using a list of queries
-import_series:
+configure_series:
   from:
     search_myanimelist:
       - Free! Specials
